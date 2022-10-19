@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
 import java.util.Scanner;
 
 public class Main {
@@ -18,6 +19,9 @@ public class Main {
     static HematologyUnit hematologyUnit = new HematologyUnit();
 
     public static void main(String[] args) {
+
+        Thread hilo = new Thread(runnable);
+        hilo.start();
 
         ArrayList<Patient> temp = new ArrayList<>();
         loadDataBaseFromJson(temp);
@@ -36,12 +40,14 @@ public class Main {
             opcion = menu();
             switch (opcion) {
                 case 1:
+                    System.out.println("If you wish wish to undo type the command : 001");
                     Patient patient = registerPatients(index);
+
                     receptionUnit.getReception().enqueue(patient);
                     receptionUnit.getDatabase().insert(index, patient);
                     index++;
 
-                    if (patient.getPrioridad() <= 1) {
+                    if (patient.getPrioridad() == 0) {
                         generalPropuseUnit.addToQueue(patient);
                     } else {
                         hematologyUnit.addToQueue(patient);
@@ -151,13 +157,43 @@ public class Main {
         return option;
     }
 
+    // METODO PARA BORRAR CADA DOS MINUTOS
+    static Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            // Esto se ejecuta en segundo plano una única vez
+            while (true) {
+                // Pero usamos un truco y hacemos un ciclo infinito
+                try {
+                    // En él, hacemos que el hilo duerma
+                    Thread.sleep(120000);
+                    System.out.println("2 minutes have passed....");
+                    if (receptionUnit.getReception().isEmpty() != true) {
+                        System.out.println("The person that is going to be removed is: ");
+                        System.out.println(
+                                "Name: " + receptionUnit.getReception().peek().getNombre() + "\n" +
+                                        "ID: " + receptionUnit.getReception().peek().getCedula() + "\n" +
+                                        "Age: " + receptionUnit.getReception().peek().getEdad() + "\n");
+                        receptionUnit.getReception().dequeue();
+                    } else {
+                        System.out.println("There is no people on the queue");
+                    }
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
     public static Patient registerPatients(int i) {
         Patient p = new Patient();
 
         int aux = 0;
         int auxx = 0;
-        System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men  :");
+        System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   ");
         aux = lector.nextInt();
+
         if (aux == 1) {
             p.Sexo = "Women";
             System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
@@ -174,15 +210,66 @@ public class Main {
             System.out.println("The Patient " + (i + 1) + " es : \n1.Women  \n2. Man  :");
         }
         lector.nextLine();
+
+        // ID ASK
         System.out.println("Patient number " + (i + 1) + ". ID:");
         p.setCedula(lector.nextLine());
+
+        if (p.getCedula().equals("UNDO") || p.getCedula().equals("01")) {
+            System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   :");
+            aux = lector.nextInt();
+
+            if (aux == 1) {
+                p.Sexo = "Women";
+                System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
+                auxx = lector.nextInt();
+                if (auxx == 1) {
+                    p.Embarazada = true;
+                } else
+                    p.Embarazada = false;
+
+            } else if (aux == 2) {
+                p.Sexo = "Man";
+            }
+            lector.nextLine();
+
+            System.out.println("Patient number " + (i + 1) + ". ID:");
+            p.setCedula(lector.nextLine());
+        }
+
+        // NAME ASK
         System.out.println("Patient number " + (i + 1) + ". Name:");
         p.setNombre(lector.nextLine());
+
+        if (p.getNombre() == "UNDO" || p.getNombre() == "01") {
+            System.out.println("Patient number " + (i + 1) + ". ID:");
+            p.setCedula(lector.nextLine());
+
+            System.out.println("Patient number " + (i + 1) + ". Name:");
+            p.setNombre(lector.nextLine());
+        }
+
+        // AGE ASK
         System.out.println("Patient number " + (i + 1) + ". Age:");
         p.setEdad(lector.nextInt());
 
+        if (p.getEdad() == 01) {
+            System.out.println("Patient number " + (i + 1) + ". Name:");
+            p.setNombre(lector.nextLine());
+
+            System.out.println("Patient number " + (i + 1) + ". Age:");
+            p.setEdad(lector.nextInt());
+        }
+
         System.out.println("¿Does Patient number " + (i + 1) + ". presents any emergency diase? \n1. Yes \n2. No:");
         p.setEnfermedad(lector.nextInt());
+
+        if (p.getEnfermedad() == 01) {
+            System.out.println("Patient number " + (i + 1) + ". Age:");
+            p.setEdad(lector.nextInt());
+            System.out.println("¿Does Patient number " + (i + 1) + ". presents any emergency diase? \n1. Yes \n2. No:");
+            p.setEnfermedad(lector.nextInt());
+        }
 
         // EMBARAZADA +2 , ENFERMEDAD +1 , AÑOS +2
 

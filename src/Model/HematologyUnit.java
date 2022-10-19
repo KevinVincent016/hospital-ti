@@ -43,7 +43,6 @@ public class HematologyUnit {
     public void removePacient() {
         if (HPrioQueue.isEmpty() == true) {
             System.out.println("There is no patient to remove");
-            receptionUnit.addToQueue(HPrioQueue.extractMax());
         } else {
             receptionUnit.addToQueue(HPrioQueue.extractMax());
         }

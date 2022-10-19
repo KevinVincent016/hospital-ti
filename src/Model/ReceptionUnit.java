@@ -11,11 +11,10 @@ public class ReceptionUnit {
 
     private final int DBSIZE = 10000000;
 
-    private EQueue<Patient> reception;
+    private EQueue<Patient> reception = new EQueue<>();
 
     public ReceptionUnit(){
         database = new HashTable<>(DBSIZE);
-        reception = new EQueue<>();
     }
 
     public HashTable<Integer, Patient> getDatabase() {
@@ -48,6 +47,19 @@ public class ReceptionUnit {
             arr.add(database.search(i));
         }
         return arr;
+    }
+
+    public void printQueue() {
+        if (reception.peek() == null) {
+            System.out.println("There is no patient on queue");
+            System.out.println(reception.size());
+            System.out.println(reception.peek());
+        } else{
+            System.out.println("The first patient on queue is: ");
+            System.out.println("Name: " + reception.peek().getNombre());
+            System.out.println("Age: " + reception.peek().getEdad());
+            System.out.println("ID: " + reception.peek().getCedula());
+        }
     }
 
 }

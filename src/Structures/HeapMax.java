@@ -59,7 +59,7 @@ public class HeapMax<T> implements IPriorityQueue<T> {
 
     @Override
     public T extractMax() {
-        if (PQ.size() < 2) {
+        if (PQ.size() < 1) {
             System.out.println("heap underflow");
         }
         T max = PQ.get(0).getValue();
