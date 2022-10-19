@@ -1,5 +1,12 @@
 package UI;
 
+import Model.GeneralPropuseUnit;
+import Model.HematologyUnit;
+import Model.Patient;
+import Model.ReceptionUnit;
+import com.google.gson.Gson;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -208,6 +215,46 @@ public class Main {
             System.out.println("The patient " + (i) + " is on the main row.");
         }
         return p;
+    }
+
+    public static void saveDataBaseInJson(ArrayList<Patient> arr) {
+        try {
+            File file = new File("dataBase/patientData.json");
+            FileOutputStream fos = new FileOutputStream(file);
+            Gson gson = new Gson();
+            String json = gson.toJson(arr);
+            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void loadDataBaseFromJson(ArrayList<Patient> arr) {
+        try {
+            File file = new File("dataBase/patientData.json");
+            FileInputStream fis = new FileInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+
+            String json = "";
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                json += line;
+            }
+            Gson gson = new Gson();
+            Patient[] data = gson.fromJson(json, Patient[].class);
+            if (data != null) {
+                for (Patient b : data) {
+                    arr.add(b);
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
