@@ -40,24 +40,27 @@ public class HematologyUnit {
         }
     }
 
-    public void removePacient() {
+    public String removePacient() {
+        String aux = "";
         if (HPrioQueue.isEmpty() == true) {
-            System.out.println("There is no patient to remove");
+            aux = "There is no patient to remove";
         } else {
             receptionUnit.addToQueue(HPrioQueue.extractMax());
+            aux = "Patient removed";
         }
+        return aux;
     }
 
-    public void printQueue() {
-        if (getHPrioQueue().getSize() == 0) {
-            System.out.println("There is no patient on the queue");
-        } else {
-            System.out.println(
+    public String printQueue() {
+        if (getHPrioQueue().getSize()==0){
+            return "There is no patient on the queue";
+        }else {
+            return
                     "Name: " + getHPrioQueue().maximun().getNombre() + "\n"
                             + "Age: " + getHPrioQueue().maximun().getEdad() + "\n"
                             + "ID: " + getHPrioQueue().maximun().getCedula() + "\n"
                             + "Level of Priority: " + getHPrioQueue().maximun().getPrioridad() + "\n"
-            );
+                    ;
         }
     }
 }

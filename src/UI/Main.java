@@ -5,10 +5,10 @@ import Model.HematologyUnit;
 import Model.Patient;
 import Model.ReceptionUnit;
 import com.google.gson.Gson;
+import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-
 import java.util.Scanner;
 
 public class Main {
@@ -40,29 +40,34 @@ public class Main {
             opcion = menu();
             switch (opcion) {
                 case 1:
-                    System.out.println("If you wish wish to undo type the command : 001");
+                    JOptionPane.showMessageDialog(null,"If you wish wish to undo type the command : UNDO");
                     Patient patient = registerPatients(index);
 
-                    receptionUnit.getReception().enqueue(patient);
-                    receptionUnit.getDatabase().insert(index, patient);
-                    index++;
-
-                    if (patient.getPrioridad() == 0) {
-                        generalPropuseUnit.addToQueue(patient);
+                    if (patient == null) {
+                        break;
                     } else {
-                        hematologyUnit.addToQueue(patient);
+                        receptionUnit.getReception().enqueue(patient);
+                        receptionUnit.getDatabase().insert(index, patient);
+                        index++;
+
+                        if (patient.getPrioridad() <= 0) {
+                            generalPropuseUnit.addToQueue(patient);
+                        } else {
+                            hematologyUnit.addToQueue(patient);
+                        }
+                        break;
                     }
-                    break;
+
                 case 2:
                     if (receptionUnit.getReception().isEmpty() != true) {
-                        System.out.println("The person that is going to be removed is: ");
-                        System.out.println(
+                        JOptionPane.showMessageDialog(null,"The person that is going to be removed is: ");
+                        JOptionPane.showMessageDialog(null,
                                 "Name: " + receptionUnit.getReception().peek().getNombre() + "\n" +
                                         "ID: " + receptionUnit.getReception().peek().getCedula() + "\n" +
                                         "Age: " + receptionUnit.getReception().peek().getEdad() + "\n");
                         receptionUnit.getReception().dequeue();
                     } else {
-                        System.out.println("There is no people on the queue");
+                        JOptionPane.showMessageDialog(null,"There is no people on the queue");
                     }
                     break;
                 case 3:
@@ -72,16 +77,16 @@ public class Main {
 
                         switch (option) {
                             case 1:
-                                System.out.println("Patient " + generalPropuseUnit.getGPQueue().peek().getNombre()
+                                JOptionPane.showMessageDialog(null,"Patient " + generalPropuseUnit.getGPQueue().peek().getNombre()
                                         + " has been attended");
                                 generalPropuseUnit.removeFromQueue();
                                 break;
                             case 2:
-                                System.out.println("you are now exiting General Unit...");
+                                JOptionPane.showMessageDialog(null,"you are now exiting General Unit...");
                                 option = 2;
                                 break;
                             default:
-                                System.out.println("ERROR !! THATS NOT AN OPTION");
+                                JOptionPane.showMessageDialog(null,"ERROR !! THATS NOT AN OPTION");
                                 break;
                         }
 
@@ -94,16 +99,16 @@ public class Main {
 
                         switch (option2) {
                             case 1:
-                                System.out.println("Patient " + hematologyUnit.getHPrioQueue().maximun().getNombre()
+                                JOptionPane.showMessageDialog(null,"Patient " + hematologyUnit.getHPrioQueue().maximun().getNombre()
                                         + " has been attended");
                                 hematologyUnit.removePacient();
                                 break;
                             case 2:
-                                System.out.println("you are now exiting Hematology Unit...");
+                                JOptionPane.showMessageDialog(null,"you are now exiting Hematology Unit...");
                                 option2 = 2;
                                 break;
                             default:
-                                System.out.println("ERROR !! THATS NOT AN OPTION");
+                                JOptionPane.showMessageDialog(null,"ERROR !! THATS NOT AN OPTION");
                                 break;
                         }
 
@@ -111,10 +116,11 @@ public class Main {
                     break;
                 case 5:
                     saveDataBaseInJson(receptionUnit.getArrayFromDB());
-                    System.out.println("See you !!! Thank you!");
+                    JOptionPane.showMessageDialog(null,"See you !!! Thank you!");
+
                     break;
                 default:
-                    System.out.println("¡¡¡ERROR THATS NOT AN OPTION!!!");
+                    JOptionPane.showMessageDialog(null,"¡¡¡ERROR THATS NOT AN OPTION!!!");
                     break;
             }
         } while (opcion != 5);
@@ -122,38 +128,20 @@ public class Main {
     }
 
     public static int menu() {
-        Scanner lector = new Scanner(System.in);
-        System.out.println("Welcome to the EPS \nMenu:");
-        System.out.println("1. Put a patient on the reception queue.");
-        System.out.println("2. Remove a patient from the reception queue.");
-        System.out.println("3. Enter to General Atention ");
-        System.out.println("4. Enter to Hematology ");
-        System.out.println("5. Exit");
-        int opcion = lector.nextInt();
-        return opcion;
+        int option = Integer.parseInt(JOptionPane.showInputDialog("Welcome to the EPS \nMenu: \n 1. Put a patient on the reception queue. " +
+                "\n 2. Remove a patient from the reception queue." + "\n 3. Enter to General Atention " + "\n 4. Enter to Hematology " + "\n 5. Exit"));
+        return option;
     }
 
     public static int menuGeneralPropuse() {
-        Scanner lector = new Scanner(System.in);
-        System.out.println("Welcome to General Unit");
-        System.out.println("The first person in the queue is: ");
-        generalPropuseUnit.printQueue();
-        System.out.println("Menu: ");
-        System.out.println("1. Attend the patient ");
-        System.out.println("2. Return to main menu");
-        int option = lector.nextInt();
+        int option = Integer.parseInt(JOptionPane.showInputDialog("Welcome to General Unit \n" + "The first person in the queue is: \n" +
+                generalPropuseUnit.printQueue() + "\n" + "Menu: \n" + "1. Attend the patient \n" + "2. Return to main menu"));
         return option;
     }
 
     public static int menuHematologyUnit() {
-        Scanner lector = new Scanner(System.in);
-        System.out.println("Welcome to Hematology Unit");
-        System.out.println("The first person in the queue is: ");
-        hematologyUnit.printQueue();
-        System.out.println("Menu: ");
-        System.out.println("1. Attend the patient ");
-        System.out.println("2. Return to main menu");
-        int option = lector.nextInt();
+        int option = Integer.parseInt(JOptionPane.showInputDialog("Welcome to Hematology Unit \n" + "The first person in the queue is: \n" +
+                hematologyUnit.printQueue() + "Menu: \n" + "1. Attend the patient \n" + "2. Return to main menu \n"));
         return option;
     }
 
@@ -161,22 +149,26 @@ public class Main {
     static Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            // Esto se ejecuta en segundo plano una única vez
             while (true) {
-                // Pero usamos un truco y hacemos un ciclo infinito
                 try {
                     // En él, hacemos que el hilo duerma
                     Thread.sleep(120000);
-                    System.out.println("2 minutes have passed....");
-                    if (receptionUnit.getReception().isEmpty() != true) {
-                        System.out.println("The person that is going to be removed is: ");
-                        System.out.println(
-                                "Name: " + receptionUnit.getReception().peek().getNombre() + "\n" +
-                                        "ID: " + receptionUnit.getReception().peek().getCedula() + "\n" +
-                                        "Age: " + receptionUnit.getReception().peek().getEdad() + "\n");
-                        receptionUnit.getReception().dequeue();
-                    } else {
-                        System.out.println("There is no people on the queue");
+                    JOptionPane.showMessageDialog(null,"2 minutes have passed....");
+                    int temp = (int) ( Math.random() * 2 + 1);;
+
+                    if (temp == 1) {
+                        if (hematologyUnit.getHPrioQueue().isEmpty() == false) {
+                            JOptionPane.showMessageDialog(null,"The person that is going to be removed is: \n" + hematologyUnit.removePacient());
+                        } else {
+                            JOptionPane.showMessageDialog(null,"There is no people on the hematology queue");
+                        }
+                    }
+                    if (temp == 2) {
+                        if (generalPropuseUnit.getGPQueue().isEmpty() == false) {
+                            JOptionPane.showMessageDialog(null,"The person that is going to be removed is: \n" + generalPropuseUnit.removeFromQueue());
+                        } else {
+                            JOptionPane.showMessageDialog(null,"There is no people on the general queue");
+                        }
                     }
 
                 } catch (InterruptedException e) {
@@ -194,28 +186,32 @@ public class Main {
         System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   ");
         aux = lector.nextInt();
 
-        if (aux == 1) {
-            p.Sexo = "Women";
-            System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
-            auxx = lector.nextInt();
-            if (auxx == 1) {
-                p.Embarazada = true;
-            } else
-                p.Embarazada = false;
+        if (aux == 001) {
 
-        } else if (aux == 2) {
-            p.Sexo = "Man";
         } else {
-            System.out.println("Value n");
-            System.out.println("The Patient " + (i + 1) + " es : \n1.Women  \n2. Man  :");
+            if (aux == 1) {
+                p.Sexo = "Women";
+                System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
+                auxx = lector.nextInt();
+                if (auxx == 1) {
+                    p.Embarazada = true;
+                } else
+                    p.Embarazada = false;
+
+            } else if (aux == 2) {
+                p.Sexo = "Man";
+            } else {
+                System.out.println("Value n");
+                System.out.println("The Patient " + (i + 1) + " es : \n1.Women  \n2. Man  :");
+            }
+            lector.nextLine();
         }
-        lector.nextLine();
 
         // ID ASK
         System.out.println("Patient number " + (i + 1) + ". ID:");
         p.setCedula(lector.nextLine());
 
-        if (p.getCedula().equals("UNDO") || p.getCedula().equals("01")) {
+        if (p.getCedula().equals("001")) {
             System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   :");
             aux = lector.nextInt();
 
@@ -241,7 +237,7 @@ public class Main {
         System.out.println("Patient number " + (i + 1) + ". Name:");
         p.setNombre(lector.nextLine());
 
-        if (p.getNombre() == "UNDO" || p.getNombre() == "01") {
+        if (p.getNombre() == "001") {
             System.out.println("Patient number " + (i + 1) + ". ID:");
             p.setCedula(lector.nextLine());
 
@@ -252,8 +248,9 @@ public class Main {
         // AGE ASK
         System.out.println("Patient number " + (i + 1) + ". Age:");
         p.setEdad(lector.nextInt());
+        int temp2 = Integer.valueOf(p.getEdad());
 
-        if (p.getEdad() == 01) {
+        if (temp2 == 001) {
             System.out.println("Patient number " + (i + 1) + ". Name:");
             p.setNombre(lector.nextLine());
 
@@ -345,3 +342,4 @@ public class Main {
     }
 
 }
+

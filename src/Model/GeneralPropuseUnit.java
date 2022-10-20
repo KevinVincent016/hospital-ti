@@ -40,24 +40,27 @@ public class GeneralPropuseUnit {
         }
     }
 
-    public void removeFromQueue() {
+    public String removeFromQueue() {
+        String aux = "";
         if (GPQueue.isEmpty()==true){
-            System.out.println("There is no patient to remove");
+            aux = "There is no patient to remove";
         }else{
             receptionUnit.addToQueue(GPQueue.dequeue());
+            aux = "Patient removed";
         }
+        return aux;
     }
 
-    public void printQueue() {
+    public String printQueue() {
         if (getGPQueue().size() == 0) {
-            System.out.println("There are no patients on the queue");
+            return "There are no patients on the queue";
         } else {
-            System.out.println(
+            return
                     "Name: " + GPQueue.peek().getNombre() + "\n"
                             + "Age: " + GPQueue.peek().getEdad() + "\n"
                             + "ID: " + GPQueue.peek().getCedula() + "\n"
                             + "Pregnant: " + GPQueue.peek().getEmbarazada() + "\n"
-            );
+                    ;
         }
     }
 }
