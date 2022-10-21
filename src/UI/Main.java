@@ -2,6 +2,7 @@ package UI;
 
 import Model.GeneralPropuseUnit;
 import Model.HematologyUnit;
+import Structures.Stack;
 import Model.Patient;
 import Model.ReceptionUnit;
 import com.google.gson.Gson;
@@ -9,14 +10,15 @@ import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Scanner;
+
 
 public class Main {
 
-    static Scanner lector = new Scanner(System.in);
     static ReceptionUnit receptionUnit = new ReceptionUnit();
     static GeneralPropuseUnit generalPropuseUnit = new GeneralPropuseUnit();
     static HematologyUnit hematologyUnit = new HematologyUnit();
+
+    static Stack<String> undo = new Stack<>();
 
     public static void main(String[] args) {
 
@@ -40,7 +42,7 @@ public class Main {
             opcion = menu();
             switch (opcion) {
                 case 1:
-                    JOptionPane.showMessageDialog(null,"If you wish wish to undo type the command : UNDO");
+                    JOptionPane.showMessageDialog(null, "If you wish wish to undo type the command : UNDO");
                     Patient patient = registerPatients(index);
 
                     if (patient == null) {
@@ -50,7 +52,7 @@ public class Main {
                         receptionUnit.getDatabase().insert(index, patient);
                         index++;
 
-                        if (patient.getPrioridad() <= 0) {
+                        if (patient.getPrioridad() == 0) {
                             generalPropuseUnit.addToQueue(patient);
                         } else {
                             hematologyUnit.addToQueue(patient);
@@ -60,14 +62,14 @@ public class Main {
 
                 case 2:
                     if (receptionUnit.getReception().isEmpty() != true) {
-                        JOptionPane.showMessageDialog(null,"The person that is going to be removed is: ");
+                        JOptionPane.showMessageDialog(null, "The person that is going to be removed is: ");
                         JOptionPane.showMessageDialog(null,
                                 "Name: " + receptionUnit.getReception().peek().getNombre() + "\n" +
                                         "ID: " + receptionUnit.getReception().peek().getCedula() + "\n" +
                                         "Age: " + receptionUnit.getReception().peek().getEdad() + "\n");
                         receptionUnit.getReception().dequeue();
                     } else {
-                        JOptionPane.showMessageDialog(null,"There is no people on the queue");
+                        JOptionPane.showMessageDialog(null, "There is no people on the queue");
                     }
                     break;
                 case 3:
@@ -77,16 +79,16 @@ public class Main {
 
                         switch (option) {
                             case 1:
-                                JOptionPane.showMessageDialog(null,"Patient " + generalPropuseUnit.getGPQueue().peek().getNombre()
+                                JOptionPane.showMessageDialog(null, "Patient " + generalPropuseUnit.getGPQueue().peek().getNombre()
                                         + " has been attended");
                                 generalPropuseUnit.removeFromQueue();
                                 break;
                             case 2:
-                                JOptionPane.showMessageDialog(null,"you are now exiting General Unit...");
+                                JOptionPane.showMessageDialog(null, "you are now exiting General Unit...");
                                 option = 2;
                                 break;
                             default:
-                                JOptionPane.showMessageDialog(null,"ERROR !! THATS NOT AN OPTION");
+                                JOptionPane.showMessageDialog(null, "ERROR !! THATS NOT AN OPTION");
                                 break;
                         }
 
@@ -99,16 +101,16 @@ public class Main {
 
                         switch (option2) {
                             case 1:
-                                JOptionPane.showMessageDialog(null,"Patient " + hematologyUnit.getHPrioQueue().maximun().getNombre()
+                                JOptionPane.showMessageDialog(null, "Patient " + hematologyUnit.getHPrioQueue().maximun().getNombre()
                                         + " has been attended");
                                 hematologyUnit.removePacient();
                                 break;
                             case 2:
-                                JOptionPane.showMessageDialog(null,"you are now exiting Hematology Unit...");
+                                JOptionPane.showMessageDialog(null, "you are now exiting Hematology Unit...");
                                 option2 = 2;
                                 break;
                             default:
-                                JOptionPane.showMessageDialog(null,"ERROR !! THATS NOT AN OPTION");
+                                JOptionPane.showMessageDialog(null, "ERROR !! THATS NOT AN OPTION");
                                 break;
                         }
 
@@ -116,11 +118,11 @@ public class Main {
                     break;
                 case 5:
                     saveDataBaseInJson(receptionUnit.getArrayFromDB());
-                    JOptionPane.showMessageDialog(null,"See you !!! Thank you!");
-
+                    JOptionPane.showMessageDialog(null, "See you !!! Thank you!");
+                    System.exit(0);
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null,"¡¡¡ERROR THATS NOT AN OPTION!!!");
+                    JOptionPane.showMessageDialog(null, "¡¡¡ERROR THATS NOT AN OPTION!!!");
                     break;
             }
         } while (opcion != 5);
@@ -153,21 +155,22 @@ public class Main {
                 try {
                     // En él, hacemos que el hilo duerma
                     Thread.sleep(120000);
-                    JOptionPane.showMessageDialog(null,"2 minutes have passed....");
-                    int temp = (int) ( Math.random() * 2 + 1);;
+                    JOptionPane.showMessageDialog(null, "2 minutes have passed....");
+                    int temp = (int) (Math.random() * 2 + 1);
+                    ;
 
                     if (temp == 1) {
                         if (hematologyUnit.getHPrioQueue().isEmpty() == false) {
-                            JOptionPane.showMessageDialog(null,"The person that is going to be removed is: \n" + hematologyUnit.removePacient());
+                            JOptionPane.showMessageDialog(null, "The person that is going to be removed is: \n" + hematologyUnit.removePacient());
                         } else {
-                            JOptionPane.showMessageDialog(null,"There is no people on the hematology queue");
+                            JOptionPane.showMessageDialog(null, "There is no people on the hematology queue");
                         }
                     }
                     if (temp == 2) {
                         if (generalPropuseUnit.getGPQueue().isEmpty() == false) {
-                            JOptionPane.showMessageDialog(null,"The person that is going to be removed is: \n" + generalPropuseUnit.removeFromQueue());
+                            JOptionPane.showMessageDialog(null, "The person that is going to be removed is: \n" + generalPropuseUnit.removeFromQueue());
                         } else {
-                            JOptionPane.showMessageDialog(null,"There is no people on the general queue");
+                            JOptionPane.showMessageDialog(null, "There is no people on the general queue");
                         }
                     }
 
@@ -179,126 +182,244 @@ public class Main {
     };
 
     public static Patient registerPatients(int i) {
-        Patient p = new Patient();
+        String nameOption;
+        String idOption;
+        String gnerOption;
+        boolean pregnantOption;
+        int ageOption;
+        int illOption;
+        int priority;
 
-        int aux = 0;
-        int auxx = 0;
-        System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   ");
-        aux = lector.nextInt();
-
-        if (aux == 001) {
-
+        String auxName = regPatientName(i);
+        if (auxName == "exit") {
+            return null;
         } else {
-            if (aux == 1) {
-                p.Sexo = "Women";
-                System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
-                auxx = lector.nextInt();
-                if (auxx == 1) {
-                    p.Embarazada = true;
-                } else
-                    p.Embarazada = false;
+            nameOption = auxName;
+        }
 
-            } else if (aux == 2) {
-                p.Sexo = "Man";
-            } else {
-                System.out.println("Value n");
-                System.out.println("The Patient " + (i + 1) + " es : \n1.Women  \n2. Man  :");
+        String auxID = regPatientID(i);
+        while (auxID.equals("UNDO")) {
+            if (undo.pop().equals("regID")) {
+                auxName = regPatientName(i);
+                if (auxName.equals("exit")) {
+                    return null;
+                }
+                auxID = regPatientID(i);
             }
-            lector.nextLine();
         }
 
-        // ID ASK
-        System.out.println("Patient number " + (i + 1) + ". ID:");
-        p.setCedula(lector.nextLine());
-
-        if (p.getCedula().equals("001")) {
-            System.out.println("The patient " + (i + 1) + " is : \n1.Woman  \n2.Men   :");
-            aux = lector.nextInt();
-
-            if (aux == 1) {
-                p.Sexo = "Women";
-                System.out.println("¿Is the patient pregnant?\n1. Yes\n2. No  :");
-                auxx = lector.nextInt();
-                if (auxx == 1) {
-                    p.Embarazada = true;
-                } else
-                    p.Embarazada = false;
-
-            } else if (aux == 2) {
-                p.Sexo = "Man";
+        String auxGner = regPatientGner(i);
+        while (auxGner.equals("UNDO")) {
+            if (undo.pop().equals("regGner")) {
+                auxID = regPatientID(i);
+                if (auxID.equals("UNDO")) {
+                    auxName = regPatientName(i);
+                    if (auxName.equals("exit")) {
+                        return null;
+                    }
+                    auxID = regPatientID(i);
+                }
+                auxGner = regPatientGner(i);
             }
-            lector.nextLine();
-
-            System.out.println("Patient number " + (i + 1) + ". ID:");
-            p.setCedula(lector.nextLine());
         }
 
-        // NAME ASK
-        System.out.println("Patient number " + (i + 1) + ". Name:");
-        p.setNombre(lector.nextLine());
-
-        if (p.getNombre() == "001") {
-            System.out.println("Patient number " + (i + 1) + ". ID:");
-            p.setCedula(lector.nextLine());
-
-            System.out.println("Patient number " + (i + 1) + ". Name:");
-            p.setNombre(lector.nextLine());
+        String auxPreg = "";
+        if (auxGner.equals("1")){
+            auxPreg = regPatientPregnant(i);
+            while (auxPreg.equals("UNDO")){
+                if (undo.pop().equals("regPreg")){
+                    auxGner = regPatientGner(i);
+                    if (auxGner.equals("UNDO")){
+                        auxID = regPatientID(i);
+                        if (auxID.equals("UNDO")){
+                            auxName = regPatientName(i);
+                            if (auxName.equals("exit")){
+                                return null;
+                            }
+                            auxID = regPatientID(i);
+                        }
+                        auxGner = regPatientGner(i);
+                        if (auxGner == "2"){
+                            break;
+                        }
+                    }
+                    auxPreg = regPatientPregnant(i);
+                }
+            }
         }
 
-        // AGE ASK
-        System.out.println("Patient number " + (i + 1) + ". Age:");
-        p.setEdad(lector.nextInt());
-        int temp2 = Integer.valueOf(p.getEdad());
-
-        if (temp2 == 001) {
-            System.out.println("Patient number " + (i + 1) + ". Name:");
-            p.setNombre(lector.nextLine());
-
-            System.out.println("Patient number " + (i + 1) + ". Age:");
-            p.setEdad(lector.nextInt());
+        String auxAge = regPatientAge(i);
+        while (auxAge.equals("UNDO")){
+            if (undo.pop().equals("regAge")){
+                if (auxGner.equals("1")){
+                    auxPreg = regPatientPregnant(i);
+                    if (auxPreg.equals("UNDO")){
+                        auxGner = regPatientGner(i);
+                        if (auxGner.equals("UNDO")){
+                            auxID = regPatientID(i);
+                            if (auxID.equals("UNDO")){
+                                auxName = regPatientName(i);
+                                if (auxName.equals("exit")){
+                                    return null;
+                                }
+                                auxID = regPatientID(i);
+                            }
+                            auxGner = regPatientGner(i);
+                        }
+                        if (auxGner.equals("1")){
+                            regPatientPregnant(i);
+                        }
+                    }
+                    auxAge = regPatientAge(i);
+                }else {
+                    auxGner = regPatientGner(i);
+                    if (auxGner.equals("UNDO")){
+                        auxID = regPatientID(i);
+                        if (auxID.equals("UNDO")){
+                            auxName = regPatientName(i);
+                            if (auxName.equals("exit")){
+                                return null;
+                            }
+                            auxID = regPatientID(i);
+                        }
+                        auxGner = regPatientGner(i);
+                    }
+                    auxAge = regPatientAge(i);
+                }
+            }
         }
 
-        System.out.println("¿Does Patient number " + (i + 1) + ". presents any emergency diase? \n1. Yes \n2. No:");
-        p.setEnfermedad(lector.nextInt());
-
-        if (p.getEnfermedad() == 01) {
-            System.out.println("Patient number " + (i + 1) + ". Age:");
-            p.setEdad(lector.nextInt());
-            System.out.println("¿Does Patient number " + (i + 1) + ". presents any emergency diase? \n1. Yes \n2. No:");
-            p.setEnfermedad(lector.nextInt());
+        String auxIll = regPatientIll(i);
+        while(auxIll.equals("UNDO")){
+            if (undo.pop().equals("regIll")){
+                auxAge = regPatientAge(i);
+                if (auxAge.equals("UNDO")){
+                    if (auxGner.equals("1")){
+                        auxPreg = regPatientPregnant(i);
+                        if (auxPreg.equals("UNDO")){
+                            auxGner = regPatientGner(i);
+                            if (auxGner.equals("UNDO")){
+                                auxID = regPatientID(i);
+                                if (auxID.equals("UNDO")){
+                                    auxName = regPatientName(i);
+                                    if (auxName.equals("exit")){
+                                        return null;
+                                    }
+                                    auxID = regPatientID(i);
+                                }
+                                auxGner = regPatientGner(i);
+                            }
+                            auxPreg = regPatientPregnant(i);
+                        }
+                    }else{
+                        auxGner = regPatientGner(i);
+                        if (auxGner.equals("UNDO")){
+                            auxID = regPatientID(i);
+                            if (auxID.equals("UNDO")){
+                                auxName = regPatientName(i);
+                                if (auxName.equals("exit")){
+                                    return null;
+                                }
+                                auxID = regPatientID(i);
+                            }
+                            auxGner = regPatientGner(i);
+                        }
+                    }
+                    auxAge = regPatientAge(i);
+                }
+                auxIll = regPatientIll(i);
+            }
         }
 
-        // EMBARAZADA +2 , ENFERMEDAD +1 , AÑOS +2
+        nameOption = auxName;
+        idOption = auxID;
+        if (Integer.parseInt(auxGner)==1){
+            gnerOption = "Women";
+        }else{
+            gnerOption = "Man";
+        }
 
-        if (p.getEdad() >= 65 && p.getEmbarazada() == true && p.getEnfermedad() == 1) {
-            p.setPrioridad(6);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEdad() >= 65 && p.getEmbarazada() == true && p.getEnfermedad() == 2) {
-            p.setPrioridad(4);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEdad() >= 65 && p.getEmbarazada() == false && p.getEnfermedad() == 1) {
-            p.setPrioridad(3);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEdad() <= 65 && p.getEmbarazada() == true && p.getEnfermedad() == 1) {
-            p.setPrioridad(3);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEdad() <= 65 && p.getEmbarazada() == false && p.getEnfermedad() == 1) {
-            p.setPrioridad(1);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEmbarazada() == true && p.getEnfermedad() == 1 && p.getEdad() <= 65) {
-            p.setPrioridad(3);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
-        } else if (p.getEmbarazada() == false && p.getEnfermedad() == 2 && p.getEdad() <= 65) {
-            p.setPrioridad(1);
-            System.out.println("The patient " + (i) + " is on the main row.");
-        } else if (p.getEmbarazada() == true && p.getEnfermedad() == 2 && p.getEdad() <= 65) {
-            p.setPrioridad(2);
-            System.out.println("The patient " + (i) + " is on the hematology row.");
+        if (Integer.parseInt(auxPreg)==1){
+            pregnantOption = true;
+        } else{
+            pregnantOption = false;
+        }
+
+        ageOption = Integer.parseInt(auxAge);
+        illOption = Integer.parseInt(auxIll);
+
+        if (ageOption >= 65 && pregnantOption == true && illOption == 1) {
+            priority = 6;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (ageOption >= 65 && pregnantOption == true && illOption == 2) {
+            priority = 4;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (ageOption >= 65 && pregnantOption == false && illOption == 1) {
+            priority = 3;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (ageOption <= 65 && pregnantOption == true && illOption == 1) {
+            priority = 3;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (ageOption <= 65 && pregnantOption == false && illOption == 1) {
+            priority = 1;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (pregnantOption == true && illOption == 1 && ageOption <= 65) {
+            priority = 3;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
+        } else if (pregnantOption == false && illOption == 2 && ageOption <= 65) {
+            priority = 1;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the main row.");
+        } else if (pregnantOption == true && illOption == 2 && ageOption <= 65) {
+            priority = 2;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the hematology row.");
         } else {
-            p.setPrioridad(0);
-            System.out.println("The patient " + (i) + " is on the main row.");
+            priority = 0;
+            JOptionPane.showMessageDialog(null,"The patient " + (i) + " is on the main row.");
         }
-        return p;
+
+        return new Patient(idOption,nameOption,ageOption,illOption,priority,gnerOption,pregnantOption);
+    }
+
+    public static String regPatientName(int i) {
+        String auxName = JOptionPane.showInputDialog("Patient number " + (i+1) + ". Name:");
+        String nameOption;
+        if (auxName.equals("UNDO")) {
+            return "exit";
+        } else {
+            undo.push("regName");
+            nameOption = auxName;
+        }
+        return nameOption;
+    }
+
+    public static String regPatientID(int i) {
+        String auxID = JOptionPane.showInputDialog("The patient " + (i+1) + ". ID:");
+        undo.push("regID");
+        return auxID;
+    }
+
+    public static String regPatientGner(int i) {
+        String auxGner = JOptionPane.showInputDialog("The patient " + (i+1) + " is: " + "\n 1.Woman" + "\n 2.Man");
+        undo.push("regGner");
+        return auxGner;
+    }
+
+    public static String regPatientPregnant(int i) {
+        String auxPreg = JOptionPane.showInputDialog("Is the patient pregnant? " + "\n 1. Yes" + "\n 2. No");
+        undo.push("regPreg");
+        return auxPreg;
+    }
+
+    public static String regPatientAge(int i){
+        String auxAge = JOptionPane.showInputDialog("Patient number " + (i+1) + ". Age:");
+        undo.push("regAge");
+        return auxAge;
+    }
+
+    public static String regPatientIll(int i){
+        String auxIll = JOptionPane.showInputDialog("Does patient number " + (i+1) + ". preents any emergency diase?" + "\n 1.Yes \n 2.No");
+        undo.push("regIll");
+        return auxIll;
     }
 
     public static void saveDataBaseInJson(ArrayList<Patient> arr) {
